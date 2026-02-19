@@ -1,8 +1,8 @@
-# Engineering of Intelligent Models (MLOps & LLMOps)
+## Engineering of Intelligent Models (MLOps & LLMOps)
 This repository contains the source code, lecture materials, slides, and practical resources for the course **Engineering of Intelligent Models (MLOps & LLMOps)**, offered in the Postgraduate Programme in Applied Machine Learning.
 The course focuses on the engineering, operationalisation, and lifecycle management of machine learning systems, covering reproducibility, orchestration, deployment, monitoring, and LLM operations.
 
-## Course Overview
+### Course Overview
 (S = Synchronous Class, AS = Asynchronous Class)
 
 | Module | Class | Type | Topics                                     |
@@ -36,7 +36,7 @@ The course focuses on the engineering, operationalisation, and lifecycle managem
 |        | 12    | AS8  | Prompt Management & Evaluation             |
 |        |       |      | Reliability & Responsible LLM Deployment   |
 
-## Learning Objectives
+### Learning Objectives
 By the end of this course, students will be able to:
 -   Design reproducible and traceable machine learning systems.
 -   Implement automated ML pipelines with orchestration mechanisms.
@@ -45,7 +45,7 @@ By the end of this course, students will be able to:
 -   Understand the operational challenges associated with Large Language Models (LLMs).
 -   Apply MLOps principles to real-world ML engineering scenarios.
 
-## Repository Structure
+### Repository Structure
 Each module has its own directory containing lecture materials, slides, code examples, and laboratory exercises.
 ```
 ├── M1_MLOps_Foundations/
@@ -65,7 +65,7 @@ Each module has its own directory containing lecture materials, slides, code exa
 -   `M4_*`: Deployment, serving, monitoring
 -   `M5_*`: LLMOps concepts and evaluation
 
-## Core Tools Used in This Course
+### Core Tools Used in This Course
 The course adopts widely used industry-standard tools:
 -   **MLflow** – Experiment tracking and model registry
 -   **DVC** – Data and pipeline versioning
@@ -74,7 +74,7 @@ The course adopts widely used industry-standard tools:
 -   **FastAPI** / **LitServe** – Model serving via REST APIs / LLM-specific serving
 -   **Docker** – Containerisation for reproducibility
 
-## Recommended Python Environment
+### Recommended Python Environment
 To ensure reproducibility and compatibility:
 -   Python 3.13+
 -   Virtual environment using `conda`, `venv`, or `uv`
@@ -89,7 +89,7 @@ To ensure reproducibility and compatibility:
     -   `pandas`, `scikit-learn`, `prophet`, `transformers` (for LLMs)
 -   Jupyter Notebook or VS Code for development
 
-## Capstone Objective
+### Capstone Objective
 Throughout the course, students progressively build an end-to-end production-ready ML system, integrating:
 -   Reproducible experimentation
 -   Automated pipelines
@@ -99,6 +99,6 @@ Throughout the course, students progressively build an end-to-end production-rea
 
 The final system reflects a complete MLOps lifecycle implementation.
 
-## Academic Context
+### Academic Context
 This repository is intended for educational purposes within the postgraduate programme in Applied Machine Learning.  
 It emphasises engineering discipline, reproducibility, and production-readiness rather than algorithmic modelling alone.
