@@ -1,4 +1,4 @@
-## Engineering of Intelligent Models (MLOps & LLMOps)
+## Engenharia de Modelos Inteligentes (EMI) / _Engineering of Intelligent Models_ (EIM)
 This repository contains the source code, lecture materials, slides, and practical resources for the course **Engineering of Intelligent Models (MLOps & LLMOps)**, offered in the Postgraduate Programme in Applied Machine Learning.
 The course focuses on the engineering, operationalisation, and lifecycle management of machine learning systems, covering reproducibility, orchestration, deployment, monitoring, and LLM operations.
 
@@ -53,9 +53,6 @@ Each module has its own directory containing lecture materials, slides, code exa
 ├── M3_Model_Orchestration_Automation/
 ├── M4_Operations_Deployment_Monitoring/
 ├── M5_LLMOps_Essentials/
-├── projects/
-├── slides/
-└── resources/
 ```
 
 ### Directory Description
@@ -88,17 +85,3 @@ To ensure reproducibility and compatibility:
     -   `docker`
     -   `pandas`, `scikit-learn`, `prophet`, `transformers` (for LLMs)
 -   Jupyter Notebook or VS Code for development
-
-### Capstone Objective
-Throughout the course, students progressively build an end-to-end production-ready ML system, integrating:
--   Reproducible experimentation
--   Automated pipelines
--   Model registry
--   API-based serving
--   Monitoring strategies
-
-The final system reflects a complete MLOps lifecycle implementation.
-
-### Academic Context
-This repository is intended for educational purposes within the postgraduate programme in Applied Machine Learning.  
-It emphasises engineering discipline, reproducibility, and production-readiness rather than algorithmic modelling alone.
