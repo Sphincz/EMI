@@ -3,7 +3,7 @@
 <html lang="en">
 <head><meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>M1-ClassAS1-MLflow</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>M1-ClassAS1-Airflow</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <style type="text/css">
     pre { line-height: 125%; }
 td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
@@ -7796,120 +7796,143 @@ a.anchor-link {
 <!-- End of mermaid configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 <main>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=4d96bfe7e2897450">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=e3e69d80474c0e2a">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="Experiment-Tracking-and-Model-Management-with-MLflow">Experiment Tracking and Model Management with MLflow<a class="anchor-link" href="#Experiment-Tracking-and-Model-Management-with-MLflow">¶</a></h2><ul>
+<h2 id="Workflow-Orchestration-with-Apache-Airflow">Workflow Orchestration with Apache Airflow<a class="anchor-link" href="#Workflow-Orchestration-with-Apache-Airflow">¶</a></h2><ul>
 <li><strong>Course:</strong> Engineering of Intelligent Models</li>
-<li><strong>Module:</strong> M1 – MLOps Foundations</li>
+<li><strong>Module:</strong> M1. MLOps Foundations</li>
 <li><strong>Format:</strong> Asynchronous Jupyter Notebook (self-study)</li>
-<li><strong>Focus Tool:</strong> MLflow</li>
+<li><strong>Focus Tool:</strong> Apache Airflow</li>
 </ul>
 <h3 id="1.-Learning-Outcomes">1. Learning Outcomes<a class="anchor-link" href="#1.-Learning-Outcomes">¶</a></h3><p>After studying this notebook, you should be able to:</p>
 <ol>
-<li>Explain the necessity of a centralized "flight recorder" for Machine Learning experiments.</li>
-<li>Describe the four pillars of the MLflow ecosystem: <strong>Tracking, Projects, Models, and Registry</strong>.</li>
-<li>Understand how to log parameters, metrics, and artifacts to compare different model iterations.</li>
-<li>Analyze the importance of the <strong>Model Registry</strong> in managing model lifecycles and deployment stages.</li>
-<li>Conceptually integrate MLflow into the Weather Forecast capstone to track the transition from Prophet to LSTM models.</li>
+<li>Explain why standard scheduling tools are insufficient for complex machine learning workflows.</li>
+<li>Define the core architecture and components of Apache Airflow.</li>
+<li>Understand the significance of Directed Acyclic Graphs (DAGs) in maintaining operational integrity.</li>
+<li>Describe the interaction between Operators, Tasks, and XComs in a data-centric environment.</li>
+<li>Conceptually integrate Apache Airflow into the Weather Forecast capstone project.</li>
 </ol>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=56a3887067d8c4f1">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=8fcf3befe0bd3487">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="2.-The-Problem:-The-%22Notebook-Graveyard%22-and-Lost-Insights">2. The Problem: The "Notebook Graveyard" and Lost Insights<a class="anchor-link" href="#2.-The-Problem:-The-%22Notebook-Graveyard%22-and-Lost-Insights">¶</a></h3><p>In the experimental phase of data science, it is common to run dozens of iterations with varying hyperparameters and data subsets. Without a structured tracking system, these experiments often end up in a "notebook graveyard," where the specific settings that led to a high-performing model are forgotten or overwritten. This leads to a lack of traceability; if a model's performance suddenly drops in production, it is nearly impossible to diagnose the cause without knowing exactly how that model was originally trained.</p>
-<p><img alt="Notebook Graveyard" src="imagens/mlflow-notebook-graveyard.png" width="600"/></p>
-<p>Traditional logging methods, such as writing results to a CSV file or a local text log, are fragmented and do not scale with team collaboration. There is no easy way to visualize the relationship between a specific learning rate and the resulting error metric across hundreds of runs. MLflow solves this by providing a standardized, centralized ledger for every experiment, ensuring that no insight is ever lost.</p>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=752d685aad96c85">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="3.-What-is-MLflow?">3. What is MLflow?<a class="anchor-link" href="#3.-What-is-MLflow?">¶</a></h3><p><img alt="MLflow Logo" src="imagens/mlflow-logo.png" width="400"/></p>
-<p>MLflow is an open-source platform designed to manage the end-to-end machine learning lifecycle. It acts as a universal "system of record" that tracks every detail of your experiments, from the code version used to the final model weights.</p>
-<p>The platform is designed to be library-agnostic, meaning it works equally well whether you are using Scikit-learn for a simple <strong>Prophet</strong> baseline or PyTorch for a complex <strong>LSTM</strong>. By providing a centralized server where all team members can log and view results, MLflow transforms isolated experiments into a collaborative and auditable engineering process.</p>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=b08028eb98e198dc">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="4.-Core-Design-Principle:-The-Four-Pillars">4. Core Design Principle: The Four Pillars<a class="anchor-link" href="#4.-Core-Design-Principle:-The-Four-Pillars">¶</a></h3><p>The power of MLflow stems from its four integrated components that cover every stage of the model lifecycle:</p>
-<p><img alt="MLflow Components" src="imagens/mlflow-components.png" width="600"/></p>
+<h3 id="2.-The-Orchestration-Problem:-Why-MLOps-Needs-More-Than-%22Cron%22">2. The Orchestration Problem: Why MLOps Needs More Than "Cron"<a class="anchor-link" href="#2.-The-Orchestration-Problem:-Why-MLOps-Needs-More-Than-%22Cron%22">¶</a></h3><p><img alt="MLOps Orchestration Problem" src="../imagens/mlops-orchestration-problem.webp" width="600"/></p>
+<p>In traditional data environments, many engineers begin by managing workflows with simple scripts or time-based cron jobs. While cron is effective for basic, isolated tasks, it fails significantly when applied to the interdependent stages of a modern machine learning pipeline. Cron jobs operate without awareness of the steps that preceded them; for example, if a data ingestion script fails at 3:00 AM, a cron-based training script will trigger regardless, wasting computational resources on stale or non-existent data. This lack of dependency management leads to unreliable execution and produces inconsistent results that are difficult to debug without centralized visibility.</p>
+<p>Apache Airflow addresses these challenges by serving as a central orchestrator that coordinates multiple interdependent processes. Unlike static scheduling, Airflow provides a robust framework for defining explicit upstream and downstream relationships between tasks, ensuring they run only when their specific conditions are met. This programmatic approach allows engineers to move from error-prone manual intervention to a cohesive system characterized by automated retries, granular logging, and high-level observability through a web-based user interface.</p>
+<p><img alt="Weather Forecast Orchestration" src="../imagens/orchestration-weather-forecast.jpg" width="600"/></p>
+<p>Consider our Weather Forecast capstone project. Every day:</p>
 <ul>
-<li><strong>MLflow Tracking:</strong> This is the centralized API and UI for logging parameters (e.g., hyperparameters), metrics (e.g., RMSE), code versions, and artifacts (e.g., plots, data samples, or model files).</li>
-<li><strong>MLflow Projects:</strong> A standard format for packaging reusable data science code. It ensures that any other engineer can run your code with the exact same environment and dependencies.</li>
-<li><strong>MLflow Models:</strong> A standard format for packaging machine learning models that can be used in a variety of downstream tools—such as real-time serving via a REST API or batch inference on Apache Spark.</li>
-<li><strong>MLflow Model Registry:</strong> A centralized model store and UI to manage the full lifecycle of an MLflow Model. It provides model lineage, model versioning, and stage transitions (e.g., "Staging" to "Production").</li>
+<li>New weather data arrives.</li>
+<li>The dataset must be updated.</li>
+<li>Preprocessing must be executed.</li>
+<li>The model may need retraining.</li>
+<li>Performance must be evaluated.</li>
+<li>If performance improves, a new model version may be registered.</li>
+</ul>
+<p>If any of these steps fail silently, the system becomes unreliable. This introduces the need for <strong>orchestration</strong>. Orchestration is the discipline of defining, scheduling, monitoring, and managing complex workflows composed of interdependent tasks. Apache Airflow was designed to solve precisely this problem!</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=7f9779ee658e1498">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="3.-What-is-Apache-Airflow?">3. What is Apache Airflow?<a class="anchor-link" href="#3.-What-is-Apache-Airflow?">¶</a></h3><p><img alt="Airflow Logo" src="../imagens/airflow-logo.png" width="400"/></p>
+<p>Apache Airflow is a leading open-source platform designed to programmatically author, schedule, and monitor workflows. Originally created at Airbnb to manage increasing complexity, it has since become the industry standard for automating and scaling data pipelines. Airflow's core philosophy is <strong>"Configuration as Code,"</strong> which means workflows are defined using Python scripts rather than static configuration files or drag-and-drop interfaces. This Python-native foundation makes the platform exceptionally extensible, allowing it to integrate seamlessly with various machine learning tools, cloud services, and CI/CD workflows.</p>
+<h4 id="3.1-The-Architectural-Components">3.1 The Architectural Components<a class="anchor-link" href="#3.1-The-Architectural-Components">¶</a></h4><p>To understand how Airflow handles the end-to-end lifecycle of a workflow, we must look at its distributed architecture. The platform consists of several critical components that work in harmony to ensure reliable execution:</p>
+<ul>
+<li><strong>The Scheduler</strong>: This is the "brain" of the system. It monitors all DAGs and tasks, triggering task instances whose dependencies have been met and whose schedule has arrived.</li>
+<li><strong>The Executor</strong>: While the scheduler decides <em>when</em> to run a task, the executor determines <em>how</em> to run it. It handles the queuing of tasks and distributes them to the available workers.</li>
+<li><strong>The Workers</strong>: These are the actual execution units that perform the work defined in your tasks (e.g., executing a Python script to fetch weather data or running a DVC command).</li>
+<li><strong>The Metadata Database</strong>: Typically powered by PostgreSQL or MySQL, this database stores the state of every task, DAG, and user, serving as the "source of truth" for the entire environment.</li>
+<li><strong>The Webserver</strong>: This component provides a comprehensive User Interface (UI). Through the UI, engineers can inspect DAG structures, monitor real-time task progress, manually trigger runs, and debug failures via granular logs.</li>
+</ul>
+<h4 id="3.2-The-Workflow-Process">3.2 The Workflow Process<a class="anchor-link" href="#3.2-The-Workflow-Process">¶</a></h4><p><img alt="Airflow Architecture" src="../imagens/airflow-components.gif" width="600"/></p>
+<p>Retrieved from: <a href="https://datageeklab.com/apache-airflow-architecture">Datageek Lab</a></p>
+<p>The interaction between these components follows a structured flow. First, the <strong>Webserver</strong> or <strong>Scheduler</strong> reads the DAG files from a dedicated folder. When a DAG is triggered, the <strong>Scheduler</strong> creates a task instance in the <strong>Metadata Database</strong> and notifies the <strong>Executor</strong>. The <strong>Executor</strong> then pushes the task to a queue where a <strong>Worker</strong> picks it up for execution. Once finished, the worker updates the task's final state (Success or Failed) back in the database so the scheduler can proceed with the next downstream steps in the graph.</p>
+<p>This decoupled architecture is what allows Airflow to be highly scalable and resilient, as individual components can be distributed across multiple servers or containers without losing track of the global pipeline state.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=971dba0d3551ae7e">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="4.-The-Core-Design-Principle:-The-DAG-(Directed-Acyclic-Graph)">4. The Core Design Principle: The DAG (Directed Acyclic Graph)<a class="anchor-link" href="#4.-The-Core-Design-Principle:-The-DAG-(Directed-Acyclic-Graph)">¶</a></h3><p>The fundamental concept in Airflow is the <strong>DAG (Directed Acyclic Graph)</strong>. A DAG is a collection of all the tasks you want to run, organised in a way that reflects their relationships and dependencies.</p>
+<ul>
+<li><strong>Directed:</strong> The workflow has a clear beginning and end, with a specific direction of flow.</li>
+<li><strong>Acyclic:</strong> There are no loops. Step A leads to Step B, but Step B cannot loop back to Step A.</li>
+<li><strong>Graph:</strong> A visual representation of the logic.</li>
+</ul>
+<p><img alt="DAG Weather Forecast" src="../imagens/dag-weather-forecast.png" width="600"/></p>
+<p>By defining a DAG for our Weather Forecast capstone project, we ensure that if the "Data Ingestion" task fails, the "Model Training" task is never triggered, protecting our production environment from faulty updates.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=227f813860e9d9a7">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="5.-Anatomy-of-a-Workflow:-Operators,-Tasks,-and-XComs">5. Anatomy of a Workflow: Operators, Tasks, and XComs<a class="anchor-link" href="#5.-Anatomy-of-a-Workflow:-Operators,-Tasks,-and-XComs">¶</a></h3><p>To transform a high-level DAG into actual work, Airflow utilizes three primary concepts: <strong>Operators</strong>, <strong>Tasks</strong>, and <strong>XComs</strong>.</p>
+<p><img alt="Airflow Operators" src="../imagens/airflow-operators.png" width="600"/></p>
+<ul>
+<li><strong>Operators:</strong> These are the templates for a task. For example, a <code>PythonOperator</code> executes a Python function, while a <code>BashOperator</code> can run a DVC command like <code>dvc pull</code>. Operators are reusable and can be parameterised to perform different actions. For instance, you could have a <code>PythonOperator</code> that calls a function to fetch weather data from an API, and another <code>PythonOperator</code> that processes that data for model training.</li>
+<li><strong>Tasks:</strong> Once an operator is instantiated with specific parameters, it becomes a task. A task is a single unit of work in the DAG. For instance, a task might be "Fetch Weather Data," which uses a <code>PythonOperator</code> to run a function that calls an API and saves the data to a DVC-tracked directory.</li>
+<li><strong>XComs (Cross-Communications):</strong> While tasks are generally isolated for reliability, XComs allow them to exchange small amounts of metadata, such as the location of a processed file or a model's accuracy score. This is crucial for dynamic workflows where the output of one task informs the execution of another. For example, after a model training task completes, it could push the model's performance metrics to an XCom, which a downstream evaluation task can then pull to decide whether to register the model in MLflow.</li>
 </ul>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=27001e7ea12a914a">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=7164af84123b81b9">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="5.-Anatomy-of-an-MLflow-Run:-Logging-the-Truth">5. Anatomy of an MLflow Run: Logging the Truth<a class="anchor-link" href="#5.-Anatomy-of-an-MLflow-Run:-Logging-the-Truth">¶</a></h3><p><img alt="MLflow Experiment Comparison" src="imagens/mlflow-experiment-comparison.png" width="600"/></p>
-<p>Every time you execute a training script, you create an MLflow <strong>Run</strong>. During this run, your code communicates with the MLflow server to record the "truth" of that execution:</p>
-<ol>
-<li><strong>Parameters:</strong> Key-value pairs like <code>learning_rate: 0.01</code> or <code>model_type: prophet</code>.</li>
-<li><strong>Metrics:</strong> Time-series values such as <code>loss</code> or <code>accuracy</code> that can be updated throughout the training process.</li>
-<li><strong>Artifacts:</strong> Large files like the trained model weight (<code>model.pkl</code>), feature importance plots, or even DVC-tracked data samples.</li>
-</ol>
-<p>This detailed logging allows you to use the MLflow UI to perform "Side-by-Side Comparisons". You can select the top five runs for your weather model and immediately see a parallel coordinates plot showing which hyperparameter combinations resulted in the lowest error.</p>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=6718106031d57eaa">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="6.-MLflow-in-the-Weather-Forecast-Capstone">6. MLflow in the Weather Forecast Capstone<a class="anchor-link" href="#6.-MLflow-in-the-Weather-Forecast-Capstone">¶</a></h3><p><img alt="MLflow Weather Forecast" src="imagens/mlflow-capstone-project.png" width="600"/></p>
-<p>For our weather capstone project, MLflow serves as the final <strong>Quality Gate</strong> before a model reaches the user:</p>
+<h3 id="6.-Airflow-in-the-Weather-Forecast-Capstone">6. Airflow in the Weather Forecast Capstone<a class="anchor-link" href="#6.-Airflow-in-the-Weather-Forecast-Capstone">¶</a></h3><p>Our capstone requires periodic data updates to maintain forecast accuracy. Airflow will manage this lifecycle:</p>
 <ul>
-<li><strong>Baseline Tracking:</strong> We will log our first Prophet model runs to establish a performance benchmark.</li>
-<li><strong>Evolutionary Benchmarking:</strong> As we move to LSTM/GRU architectures managed by <strong>Hydra</strong>, we will log the configuration of each experiment to prove that the deep learning approach actually outperforms the baseline.</li>
-<li><strong>Lifecycle Management:</strong> Once we find a high-performing model, we will use the <strong>Model Registry</strong> to tag it as <code>Production</code>. Our <strong>FastAPI</strong> serving layer will then automatically pull whichever model carries that tag, allowing us to update the live forecast without changing our deployment code.</li>
+<li><strong>Schedule:</strong> We can set the DAG to run hourly.</li>
+<li><strong>Ingestion Task:</strong> Triggers a script to pull the latest meteorological data.</li>
+<li><strong>Processing Task:</strong> Runs the feature engineering logic (only if ingestion succeeds).</li>
+<li><strong>Training Task:</strong> Executes the <strong>Prophet or LSTM</strong> training script.</li>
+<li><strong>Deployment Task:</strong> If evaluation metrics meet our "quality gate", the new model is pushed to the Model Registry.</li>
 </ul>
-<p>By integrating MLflow, we ensure that every weather forecast is backed by a fully traceable and reproducible experiment.</p>
+<p>This automation ensures that our weather service is always powered by the most recent data without manual intervention.</p>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=4636903b06ae9455">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fcc8ca5e86341788">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="7.-Recommended-Further-Reading">7. Recommended Further Reading<a class="anchor-link" href="#7.-Recommended-Further-Reading">¶</a></h3><ul>
-<li><strong>MLflow Official Documentation:</strong> <a href="https://mlflow.org/docs/latest/index.html">https://mlflow.org/docs/latest/index.html</a></li>
-<li><strong>MLflow tutorial: MLOps made eas:</strong> <a href="https://anderfernandez.com/en/blog/complete-mlflow-tutorial/">https://anderfernandez.com/en/blog/complete-mlflow-tutorial/</a></li>
-<li><strong>MLflow Beginner's Guide: How to Get Started with MLflow:</strong> <a href="https://rogue-scholar.org/records/957q3-ee152">https://rogue-scholar.org/records/957q3-ee152</a></li>
+<li>Apache Airflow Official Documentation
+<a href="https://airflow.apache.org/docs/">https://airflow.apache.org/docs/</a></li>
+<li>Airflow Concepts Guide
+<a href="https://airflow.apache.org/docs/apache-airflow/stable/concepts/index.html">https://airflow.apache.org/docs/apache-airflow/stable/concepts/index.html</a></li>
 <li>Huyen, C. (2022). Designing Machine Learning Systems: An Iterative Process for Production-Ready Applications. O’Reilly Media. (<em>published in Moodle</em>)</li>
 </ul>
 </div>

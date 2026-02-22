@@ -3,7 +3,7 @@
 <html lang="en">
 <head><meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>M1-ClassAS1-Airflow</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>M1-ClassAS1-Hydra</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <style type="text/css">
     pre { line-height: 125%; }
 td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
@@ -7796,144 +7796,110 @@ a.anchor-link {
 <!-- End of mermaid configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 <main>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=e3e69d80474c0e2a">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=70108ee3c27522a3">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="Workflow-Orchestration-with-Apache-Airflow">Workflow Orchestration with Apache Airflow<a class="anchor-link" href="#Workflow-Orchestration-with-Apache-Airflow">¶</a></h2><ul>
+<h2 id="Configuration-Management-and-Reproducibility-with-Hydra">Configuration Management and Reproducibility with Hydra<a class="anchor-link" href="#Configuration-Management-and-Reproducibility-with-Hydra">¶</a></h2><ul>
 <li><strong>Course:</strong> Engineering of Intelligent Models</li>
-<li><strong>Module:</strong> M1. MLOps Foundations</li>
+<li><strong>Module:</strong> M1 – MLOps Foundations</li>
 <li><strong>Format:</strong> Asynchronous Jupyter Notebook (self-study)</li>
-<li><strong>Focus Tool:</strong> Apache Airflow</li>
+<li><strong>Focus Tool:</strong> Hydra</li>
 </ul>
 <h3 id="1.-Learning-Outcomes">1. Learning Outcomes<a class="anchor-link" href="#1.-Learning-Outcomes">¶</a></h3><p>After studying this notebook, you should be able to:</p>
 <ol>
-<li>Explain why standard scheduling tools are insufficient for complex machine learning workflows.</li>
-<li>Define the core architecture and components of Apache Airflow.</li>
-<li>Understand the significance of Directed Acyclic Graphs (DAGs) in maintaining operational integrity.</li>
-<li>Describe the interaction between Operators, Tasks, and XComs in a data-centric environment.</li>
-<li>Conceptually integrate Apache Airflow into the Weather Forecast capstone project.</li>
+<li>Explain the "Configuration Debt" in machine learning and why hardcoded parameters impede scalability.</li>
+<li>Define the core architectural principles of <strong>Hydra</strong>, including its hierarchical configuration and composition features.</li>
+<li>Understand how to use <strong>Config Groups</strong> to manage multiple model architectures and environments.</li>
+<li>Describe the synergy between Hydra and other MLOps tools like MLflow and DVC.</li>
+<li>Conceptually apply dynamic configuration to the Weather Forecast capstone project to manage hyperparameters and data paths.</li>
 </ol>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=8fcf3befe0bd3487">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=d9a3d91b6181ee76">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="2.-The-Orchestration-Problem:-Why-MLOps-Needs-More-Than-%22Cron%22">2. The Orchestration Problem: Why MLOps Needs More Than "Cron"<a class="anchor-link" href="#2.-The-Orchestration-Problem:-Why-MLOps-Needs-More-Than-%22Cron%22">¶</a></h3><p><img alt="MLOps Orchestration Problem" src="imagens/mlops-orchestration-problem.webp" width="600"/></p>
-<p>In traditional data environments, many engineers begin by managing workflows with simple scripts or time-based cron jobs. While cron is effective for basic, isolated tasks, it fails significantly when applied to the interdependent stages of a modern machine learning pipeline. Cron jobs operate without awareness of the steps that preceded them; for example, if a data ingestion script fails at 3:00 AM, a cron-based training script will trigger regardless, wasting computational resources on stale or non-existent data. This lack of dependency management leads to unreliable execution and produces inconsistent results that are difficult to debug without centralized visibility.</p>
-<p>Apache Airflow addresses these challenges by serving as a central orchestrator that coordinates multiple interdependent processes. Unlike static scheduling, Airflow provides a robust framework for defining explicit upstream and downstream relationships between tasks, ensuring they run only when their specific conditions are met. This programmatic approach allows engineers to move from error-prone manual intervention to a cohesive system characterized by automated retries, granular logging, and high-level observability through a web-based user interface.</p>
-<p><img alt="Weather Forecast Orchestration" src="imagens/orchestration-weather-forecast.jpg" width="600"/></p>
-<p>Consider our Weather Forecast capstone project. Every day:</p>
-<ul>
-<li>New weather data arrives.</li>
-<li>The dataset must be updated.</li>
-<li>Preprocessing must be executed.</li>
-<li>The model may need retraining.</li>
-<li>Performance must be evaluated.</li>
-<li>If performance improves, a new model version may be registered.</li>
-</ul>
-<p>If any of these steps fail silently, the system becomes unreliable. This introduces the need for <strong>orchestration</strong>. Orchestration is the discipline of defining, scheduling, monitoring, and managing complex workflows composed of interdependent tasks. Apache Airflow was designed to solve precisely this problem!</p>
+<h3 id="2.-The-Problem:-Hardcoding-and-Configuration-Debt">2. The Problem: Hardcoding and Configuration Debt<a class="anchor-link" href="#2.-The-Problem:-Hardcoding-and-Configuration-Debt">¶</a></h3><p>In the early stages of a machine learning project, it is common to define parameters, such as learning rates, data paths, or model types, directly inside the Python scripts. However, as the project grows into a production-grade system like our <strong>Weather Forecast</strong> capstone, this approach creates significant "Configuration Debt". If you want to experiment with a different model (e.g., switching from Prophet to an LSTM), you find yourself manually editing source code, which increases the risk of errors and makes it impossible to track exactly which settings were used for a specific experiment.</p>
+<p><img alt="Configuration Debt" src="../imagens/hydra-configuration-debt.jpg" width="600"/></p>
+<p>Traditional configuration files, such as a single static YAML or JSON, often become bloated and difficult to manage as complexity increases. They lack the flexibility to handle "nested" settings, such as different preprocessing parameters for different regions or different architectures for different prediction horizons. This lack of flexibility breaks the <strong>Reproducibility</strong> pillar of MLOps; if you cannot easily swap configurations without touching the code, you cannot effectively scale your experimentation.</p>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=7f9779ee658e1498">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=efd306ba04e81534">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="3.-What-is-Apache-Airflow?">3. What is Apache Airflow?<a class="anchor-link" href="#3.-What-is-Apache-Airflow?">¶</a></h3><p><img alt="Airflow Logo" src="imagens/airflow-logo.png" width="400"/></p>
-<p>Apache Airflow is a leading open-source platform designed to programmatically author, schedule, and monitor workflows. Originally created at Airbnb to manage increasing complexity, it has since become the industry standard for automating and scaling data pipelines. Airflow's core philosophy is <strong>"Configuration as Code,"</strong> which means workflows are defined using Python scripts rather than static configuration files or drag-and-drop interfaces. This Python-native foundation makes the platform exceptionally extensible, allowing it to integrate seamlessly with various machine learning tools, cloud services, and CI/CD workflows.</p>
-<h4 id="3.1-The-Architectural-Components">3.1 The Architectural Components<a class="anchor-link" href="#3.1-The-Architectural-Components">¶</a></h4><p>To understand how Airflow handles the end-to-end lifecycle of a workflow, we must look at its distributed architecture. The platform consists of several critical components that work in harmony to ensure reliable execution:</p>
-<ul>
-<li><strong>The Scheduler</strong>: This is the "brain" of the system. It monitors all DAGs and tasks, triggering task instances whose dependencies have been met and whose schedule has arrived.</li>
-<li><strong>The Executor</strong>: While the scheduler decides <em>when</em> to run a task, the executor determines <em>how</em> to run it. It handles the queuing of tasks and distributes them to the available workers.</li>
-<li><strong>The Workers</strong>: These are the actual execution units that perform the work defined in your tasks (e.g., executing a Python script to fetch weather data or running a DVC command).</li>
-<li><strong>The Metadata Database</strong>: Typically powered by PostgreSQL or MySQL, this database stores the state of every task, DAG, and user, serving as the "source of truth" for the entire environment.</li>
-<li><strong>The Webserver</strong>: This component provides a comprehensive User Interface (UI). Through the UI, engineers can inspect DAG structures, monitor real-time task progress, manually trigger runs, and debug failures via granular logs.</li>
-</ul>
-<h4 id="3.2-The-Workflow-Process">3.2 The Workflow Process<a class="anchor-link" href="#3.2-The-Workflow-Process">¶</a></h4><p><img alt="Airflow Architecture" src="imagens/airflow-components.gif" width="600"/></p>
-<p>Retrieved from: <a href="https://datageeklab.com/apache-airflow-architecture">Datageek Lab</a></p>
-<p>The interaction between these components follows a structured flow. First, the <strong>Webserver</strong> or <strong>Scheduler</strong> reads the DAG files from a dedicated folder. When a DAG is triggered, the <strong>Scheduler</strong> creates a task instance in the <strong>Metadata Database</strong> and notifies the <strong>Executor</strong>. The <strong>Executor</strong> then pushes the task to a queue where a <strong>Worker</strong> picks it up for execution. Once finished, the worker updates the task's final state (Success or Failed) back in the database so the scheduler can proceed with the next downstream steps in the graph.</p>
-<p>This decoupled architecture is what allows Airflow to be highly scalable and resilient, as individual components can be distributed across multiple servers or containers without losing track of the global pipeline state.</p>
+<h3 id="3.-What-is-Hydra?">3. What is Hydra?<a class="anchor-link" href="#3.-What-is-Hydra?">¶</a></h3><p><img alt="Hydra Logo" src="../imagens/hydra-logo.png" width="400"/></p>
+<p>Hydra is an open-source Python framework developed by Meta (formerly Facebook) designed specifically to simplify the development of complex applications. Its primary goal is to allow developers to dynamically create a hierarchical configuration by composing it from multiple files and even overriding settings from the command line.</p>
+<p><img alt="Hydra Config Groups" src="../imagens/hydra-composition.png" width="400"/></p>
+<p>The power of Hydra lies in its <strong>Compositional</strong> nature. Instead of one giant configuration file, you break your settings into logical "Config Groups." For our weather system, you might have one group for <code>model</code> (Prophet, LSTM, GRU) and another for <code>dataset</code> (Historical, Real-time API). Hydra allows you to choose which files to combine at runtime, ensuring that your code remains generic while your experiments remain specific and documented.</p>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=971dba0d3551ae7e">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=8063447edc9ccd">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="4.-The-Core-Design-Principle:-The-DAG-(Directed-Acyclic-Graph)">4. The Core Design Principle: The DAG (Directed Acyclic Graph)<a class="anchor-link" href="#4.-The-Core-Design-Principle:-The-DAG-(Directed-Acyclic-Graph)">¶</a></h3><p>The fundamental concept in Airflow is the <strong>DAG (Directed Acyclic Graph)</strong>. A DAG is a collection of all the tasks you want to run, organised in a way that reflects their relationships and dependencies.</p>
-<ul>
-<li><strong>Directed:</strong> The workflow has a clear beginning and end, with a specific direction of flow.</li>
-<li><strong>Acyclic:</strong> There are no loops. Step A leads to Step B, but Step B cannot loop back to Step A.</li>
-<li><strong>Graph:</strong> A visual representation of the logic.</li>
-</ul>
-<p><img alt="DAG Weather Forecast" src="imagens/dag-weather-forecast.png" width="600"/></p>
-<p>By defining a DAG for our Weather Forecast capstone project, we ensure that if the "Data Ingestion" task fails, the "Model Training" task is never triggered, protecting our production environment from faulty updates.</p>
+<h3 id="4.-Hydra-Composition-and-Overrides">4. Hydra Composition and Overrides<a class="anchor-link" href="#4.-Hydra-Composition-and-Overrides">¶</a></h3><p>Hydra operates on the principle of <strong>Hierarchical Configuration</strong>. By using a primary <code>config.yaml</code> as an entry point, you can define "Defaults" that tell Hydra which sub-configurations to load. This is particularly useful for our capstone: you can define a default model as Prophet but easily override it to use an LSTM by simply passing <code>model=lstm</code> in the command line without modifying a single line of Python.</p>
+<p>This dynamic overriding capability ensures that every experiment is reproducible. Hydra automatically saves the specific configuration used for a run in an output directory, creating a permanent record of the parameters used. This complements <strong>DVC</strong> (which versions the data) and <strong>MLflow</strong> (which tracks the results), providing the final piece of the reproducibility puzzle: the versioning of the <em>intent</em> behind the experiment.</p>
+<p><img alt="Hydra Overrides" src="../imagens/hydra-override.png" width="400"/></p>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=227f813860e9d9a7">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=d1399c3bfdf116c4">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="5.-Anatomy-of-a-Workflow:-Operators,-Tasks,-and-XComs">5. Anatomy of a Workflow: Operators, Tasks, and XComs<a class="anchor-link" href="#5.-Anatomy-of-a-Workflow:-Operators,-Tasks,-and-XComs">¶</a></h3><p>To transform a high-level DAG into actual work, Airflow utilizes three primary concepts: <strong>Operators</strong>, <strong>Tasks</strong>, and <strong>XComs</strong>.</p>
-<p><img alt="Airflow Operators" src="imagens/airflow-operators.png" width="600"/></p>
-<ul>
-<li><strong>Operators:</strong> These are the templates for a task. For example, a <code>PythonOperator</code> executes a Python function, while a <code>BashOperator</code> can run a DVC command like <code>dvc pull</code>. Operators are reusable and can be parameterised to perform different actions. For instance, you could have a <code>PythonOperator</code> that calls a function to fetch weather data from an API, and another <code>PythonOperator</code> that processes that data for model training.</li>
-<li><strong>Tasks:</strong> Once an operator is instantiated with specific parameters, it becomes a task. A task is a single unit of work in the DAG. For instance, a task might be "Fetch Weather Data," which uses a <code>PythonOperator</code> to run a function that calls an API and saves the data to a DVC-tracked directory.</li>
-<li><strong>XComs (Cross-Communications):</strong> While tasks are generally isolated for reliability, XComs allow them to exchange small amounts of metadata, such as the location of a processed file or a model's accuracy score. This is crucial for dynamic workflows where the output of one task informs the execution of another. For example, after a model training task completes, it could push the model's performance metrics to an XCom, which a downstream evaluation task can then pull to decide whether to register the model in MLflow.</li>
-</ul>
+<h3 id="5.-Anatomy-of-a-Hydra-Workflow:-Config-Groups-and-Sweeps">5. Anatomy of a Hydra Workflow: Config Groups and Sweeps<a class="anchor-link" href="#5.-Anatomy-of-a-Hydra-Workflow:-Config-Groups-and-Sweeps">¶</a></h3><p>To manage complex settings, Hydra utilizes three primary mechanisms: <strong>Config Groups</strong>, <strong>Multirun</strong>, and <strong>Output Management</strong>. <strong>Config Groups</strong> allow you to define alternative sets of settings for a specific component; for example, your <code>model</code> group could contain separate files for <code>prophet.yaml</code> and <code>lstm.yaml</code>.</p>
+<p><img alt="Hydra Config Groups" src="../imagens/hydra-config-groups.png" width="600"/></p>
+<p>The <strong>Multirun</strong> feature is a cornerstone for hyperparameter optimization. Instead of running your script five times with five different learning rates, you can instruct Hydra to perform a "Sweep" (e.g., <code>learning_rate=0.01,0.05,0.1 -m</code>). Hydra will automatically launch multiple instances of your pipeline, managing the configurations for each. Finally, Hydra's <strong>Output Management</strong> ensures that every run is isolated in its own folder, containing the logs and the final composed configuration file, which is essential for auditability in professional MLOps environments.</p>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=7164af84123b81b9">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=61f4819bb5b1a992">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="6.-Airflow-in-the-Weather-Forecast-Capstone">6. Airflow in the Weather Forecast Capstone<a class="anchor-link" href="#6.-Airflow-in-the-Weather-Forecast-Capstone">¶</a></h3><p>Our capstone requires periodic data updates to maintain forecast accuracy. Airflow will manage this lifecycle:</p>
+<h3 id="6.-Hydra-in-the-Weather-Forecast-Capstone">6. Hydra in the Weather Forecast Capstone<a class="anchor-link" href="#6.-Hydra-in-the-Weather-Forecast-Capstone">¶</a></h3><p>As we progress through the course, Hydra will become the interface through which we interact with our weather models. It will manage the transition from a simple baseline to a deep learning pipeline:</p>
 <ul>
-<li><strong>Schedule:</strong> We can set the DAG to run hourly.</li>
-<li><strong>Ingestion Task:</strong> Triggers a script to pull the latest meteorological data.</li>
-<li><strong>Processing Task:</strong> Runs the feature engineering logic (only if ingestion succeeds).</li>
-<li><strong>Training Task:</strong> Executes the <strong>Prophet or LSTM</strong> training script.</li>
-<li><strong>Deployment Task:</strong> If evaluation metrics meet our "quality gate", the new model is pushed to the Model Registry.</li>
+<li><strong>Experiment Management:</strong> We will use Hydra to switch between different window sizes for our time-series data without rewriting our preprocessing logic.</li>
+<li><strong>Environment Configuration:</strong> Hydra will handle the difference between "Local" development (using CSV files) and "Production" environments (connecting to live APIs).</li>
+<li><strong>Hyperparameter Tuning:</strong> During the Model Engineering phase, Hydra will manage the sweeps across LSTM hidden layers and dropout rates, logging the best combinations directly to <strong>MLflow</strong>.</li>
 </ul>
-<p>This automation ensures that our weather service is always powered by the most recent data without manual intervention.</p>
+<p>By integrating Hydra, we ensure that our code is truly "Model Agnostic," allowing us to focus on the engineering logic while the framework handles the complexity of the parameters.</p>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fcc8ca5e86341788">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=d8593e858df0f076">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="7.-Recommended-Further-Reading">7. Recommended Further Reading<a class="anchor-link" href="#7.-Recommended-Further-Reading">¶</a></h3><ul>
-<li>Apache Airflow Official Documentation
-<a href="https://airflow.apache.org/docs/">https://airflow.apache.org/docs/</a></li>
-<li>Airflow Concepts Guide
-<a href="https://airflow.apache.org/docs/apache-airflow/stable/concepts/index.html">https://airflow.apache.org/docs/apache-airflow/stable/concepts/index.html</a></li>
-<li>Huyen, C. (2022). Designing Machine Learning Systems: An Iterative Process for Production-Ready Applications. O’Reilly Media. (<em>published in Moodle</em>)</li>
+<li><strong>Hydra Official Documentation:</strong> <a href="https://hydra.cc/docs/intro/">https://hydra.cc/docs/intro/</a></li>
+<li><strong>OmegaConf (The engine behind Hydra):</strong> <a href="https://omegaconf.readthedocs.io/">https://omegaconf.readthedocs.io/</a></li>
+<li><strong>Tutorial: Learning Hydra for configuring ML experiments</strong> <a href="https://www.sscardapane.it/tutorials/hydra-tutorial/">https://www.sscardapane.it/tutorials/hydra-tutorial/</a></li>
 </ul>
 </div>
 </div>

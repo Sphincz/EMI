@@ -3,7 +3,7 @@
 <html lang="en">
 <head><meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>M1-ClassAS1-DVC</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>M1-ClassAS1-MLflow</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <style type="text/css">
     pre { line-height: 125%; }
 td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
@@ -7796,123 +7796,121 @@ a.anchor-link {
 <!-- End of mermaid configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 <main>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=7a8bb965c667cf08">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=4d96bfe7e2897450">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="Data-Versioning-and-Reproducibility-with-DVC">Data Versioning and Reproducibility with DVC<a class="anchor-link" href="#Data-Versioning-and-Reproducibility-with-DVC">¶</a></h2><ul>
+<h2 id="Experiment-Tracking-and-Model-Management-with-MLflow">Experiment Tracking and Model Management with MLflow<a class="anchor-link" href="#Experiment-Tracking-and-Model-Management-with-MLflow">¶</a></h2><ul>
 <li><strong>Course:</strong> Engineering of Intelligent Models</li>
-<li><strong>Module:</strong> M1. MLOps Foundations</li>
+<li><strong>Module:</strong> M1 – MLOps Foundations</li>
 <li><strong>Format:</strong> Asynchronous Jupyter Notebook (self-study)</li>
-<li><strong>Focus Tool:</strong> DVC (Data Version Control)</li>
+<li><strong>Focus Tool:</strong> MLflow</li>
 </ul>
 <h3 id="1.-Learning-Outcomes">1. Learning Outcomes<a class="anchor-link" href="#1.-Learning-Outcomes">¶</a></h3><p>After studying this notebook, you should be able to:</p>
 <ol>
-<li>Explain why traditional version control systems are insufficient for managing machine learning systems.</li>
-<li>Describe the architectural principles behind Data Version Control (DVC).</li>
-<li>Understand how DVC enables reproducibility, traceability, and collaboration in ML workflows.</li>
-<li>Analyse the role of DVC within a broader MLOps architecture.</li>
-<li>Conceptually integrate DVC into the Weather Forecast capstone system.</li>
+<li>Explain the necessity of a centralized "flight recorder" for Machine Learning experiments.</li>
+<li>Describe the four pillars of the MLflow ecosystem: <strong>Tracking, Projects, Models, and Registry</strong>.</li>
+<li>Understand how to log parameters, metrics, and artifacts to compare different model iterations.</li>
+<li>Analyze the importance of the <strong>Model Registry</strong> in managing model lifecycles and deployment stages.</li>
+<li>Conceptually integrate MLflow into the Weather Forecast capstone to track the transition from Prophet to LSTM models.</li>
 </ol>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=5f2ad429a70f84ad">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=56a3887067d8c4f1">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="2.-The-Reproducibility-Problem-in-Machine-Learning">2. The Reproducibility Problem in Machine Learning<a class="anchor-link" href="#2.-The-Reproducibility-Problem-in-Machine-Learning">¶</a></h3><p><img alt="ML Reproducibility Problem" src="imagens/ml-reproducibility.webp" width="600"/></p>
-<p>Reproducibility in machine learning means being able to run the same experiment again and get the same results. For ML this means using the same code, data and settings and making sure the model performs the same way each time. Reproducibility helps in debugging, comparing models, sharing work with others and deploying reliable systems in the real world. When experiments are reproducible teams can trust each other’s work, improve on existing models, compare results fairly and avoid unexpected behavior during deployment.</p>
-<p>In traditional software engineering, reproducibility is relatively straightforward. Source code is versioned, dependencies are declared, and builds can typically be reconstructed deterministically from a repository state. Machine learning systems, however, introduce an additional and far more volatile dependency: <strong>data</strong>.</p>
-<p>A trained model is not merely a function of its source code; it is a function of the dataset used during training, the preprocessing transformations, feature engineering logic, and hyperparameters. Without a tool like DVC, researchers often fall into the trap of manual versioning, leading to "filename hell."</p>
-<p><img alt="Reproducibility Problem" src="imagens/reproducibility-problem.webp" width="600"/></p>
-<p>In practice, datasets evolve continuously as records are appended, corrections are made, sensors drift, or APIs update. Without a structured way to track data versions, answering fundamental questions becomes impossible: Which dataset produced this model? Why did performance improve or degrade? Can we rebuild last month’s model exactly as it was? In a production setting, these are operational, regulatory, and sometimes legal requirements. This is the problem that DVC was designed to solve.</p>
+<h3 id="2.-The-Problem:-The-%22Notebook-Graveyard%22-and-Lost-Insights">2. The Problem: The "Notebook Graveyard" and Lost Insights<a class="anchor-link" href="#2.-The-Problem:-The-%22Notebook-Graveyard%22-and-Lost-Insights">¶</a></h3><p>In the experimental phase of data science, it is common to run dozens of iterations with varying hyperparameters and data subsets. Without a structured tracking system, these experiments often end up in a "notebook graveyard," where the specific settings that led to a high-performing model are forgotten or overwritten. This leads to a lack of traceability; if a model's performance suddenly drops in production, it is nearly impossible to diagnose the cause without knowing exactly how that model was originally trained.</p>
+<p><img alt="Notebook Graveyard" src="../imagens/mlflow-notebook-graveyard.png" width="600"/></p>
+<p>Traditional logging methods, such as writing results to a CSV file or a local text log, are fragmented and do not scale with team collaboration. There is no easy way to visualize the relationship between a specific learning rate and the resulting error metric across hundreds of runs. MLflow solves this by providing a standardized, centralized ledger for every experiment, ensuring that no insight is ever lost.</p>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=af104549fbd05fa2">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=752d685aad96c85">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="3.-What-is-DVC?">3. What is DVC?<a class="anchor-link" href="#3.-What-is-DVC?">¶</a></h3><p><img alt="DVC Logo" src="imagens/dvc-logo.png" width="200"/></p>
-<p>DVC (Data Version Control) is an open-source system that extends Git-based workflows to large datasets and machine learning pipelines.</p>
+<h3 id="3.-What-is-MLflow?">3. What is MLflow?<a class="anchor-link" href="#3.-What-is-MLflow?">¶</a></h3><p><img alt="MLflow Logo" src="../imagens/mlflow-logo.png" width="400"/></p>
+<p>MLflow is an open-source platform designed to manage the end-to-end machine learning lifecycle. It acts as a universal "system of record" that tracks every detail of your experiments, from the code version used to the final model weights.</p>
+<p>The platform is designed to be library-agnostic, meaning it works equally well whether you are using Scikit-learn for a simple <strong>Prophet</strong> baseline or PyTorch for a complex <strong>LSTM</strong>. By providing a centralized server where all team members can log and view results, MLflow transforms isolated experiments into a collaborative and auditable engineering process.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=b08028eb98e198dc">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="4.-Core-Design-Principle:-The-Four-Pillars">4. Core Design Principle: The Four Pillars<a class="anchor-link" href="#4.-Core-Design-Principle:-The-Four-Pillars">¶</a></h3><p>The power of MLflow stems from its four integrated components that cover every stage of the model lifecycle:</p>
+<p><img alt="MLflow Components" src="../imagens/mlflow-components.png" width="600"/></p>
 <ul>
-<li><strong>Official website</strong>: <a href="https://dvc.org">https://dvc.org</a></li>
-<li><strong>Documentation</strong>: <a href="https://dvc.org/doc">https://dvc.org/doc</a></li>
+<li><strong>MLflow Tracking:</strong> This is the centralized API and UI for logging parameters (e.g., hyperparameters), metrics (e.g., RMSE), code versions, and artifacts (e.g., plots, data samples, or model files).</li>
+<li><strong>MLflow Projects:</strong> A standard format for packaging reusable data science code. It ensures that any other engineer can run your code with the exact same environment and dependencies.</li>
+<li><strong>MLflow Models:</strong> A standard format for packaging machine learning models that can be used in a variety of downstream tools—such as real-time serving via a REST API or batch inference on Apache Spark.</li>
+<li><strong>MLflow Model Registry:</strong> A centralized model store and UI to manage the full lifecycle of an MLflow Model. It provides model lineage, model versioning, and stage transitions (e.g., "Staging" to "Production").</li>
 </ul>
-<p>Unlike Git, which is optimised for tracking small text-based source code files, DVC is designed to manage large datasets, model artefacts, intermediate pipeline outputs, and reproducible ML workflows. DVC does not replace Git; instead, it integrates tightly with it. Git continues to manage source code and lightweight metadata, while DVC manages large files and pipeline state externally, linking everything to Git commits. This separation preserves the efficiency of Git while enabling data-centric version control.</p>
-<p><img alt="DVC vs Git" src="imagens/dvc-vs-git.png" width="600"/></p>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=e00470364e4db61b">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=27001e7ea12a914a">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="4.-The-Core-Design-Principle:-The-%22Metafile%22">4. The Core Design Principle: The "Metafile"<a class="anchor-link" href="#4.-The-Core-Design-Principle:-The-%22Metafile%22">¶</a></h3><p>The central idea behind DVC is to treat data and models as first-class citizens in version control. When you add data to DVC, it is not committed directly to Git. Instead:</p>
+<h3 id="5.-Anatomy-of-an-MLflow-Run:-Logging-the-Truth">5. Anatomy of an MLflow Run: Logging the Truth<a class="anchor-link" href="#5.-Anatomy-of-an-MLflow-Run:-Logging-the-Truth">¶</a></h3><p><img alt="MLflow Experiment Comparison" src="../imagens/mlflow-experiment-comparison.png" width="600"/></p>
+<p>Every time you execute a training script, you create an MLflow <strong>Run</strong>. During this run, your code communicates with the MLflow server to record the "truth" of that execution:</p>
 <ol>
-<li><strong>DVC computes a cryptographic hash</strong> of the file to uniquely identify its contents.</li>
-<li><strong>The actual file is stored</strong> in a dedicated storage area, known as the local cache or remote storage (like AWS S3 or Google Cloud Storage).</li>
-<li><strong>A lightweight "Metafile" (<code>.dvc</code>) is created</strong>. This file contains metadata and a pointer to where the actual data is stored.</li>
+<li><strong>Parameters:</strong> Key-value pairs like <code>learning_rate: 0.01</code> or <code>model_type: prophet</code>.</li>
+<li><strong>Metrics:</strong> Time-series values such as <code>loss</code> or <code>accuracy</code> that can be updated throughout the training process.</li>
+<li><strong>Artifacts:</strong> Large files like the trained model weight (<code>model.pkl</code>), feature importance plots, or even DVC-tracked data samples.</li>
 </ol>
-<p>Git tracks this <code>.dvc</code> metafile. Because the hash is content-based, any modification to the data produces a new version identifier in the metafile, creating a deterministic link between a Git commit, a specific dataset version, and a specific model artefact.</p>
-<p><img alt="DVC Versioning" src="imagens/dvc-versioning.webp" width="600"/></p>
+<p>This detailed logging allows you to use the MLflow UI to perform "Side-by-Side Comparisons". You can select the top five runs for your weather model and immediately see a parallel coordinates plot showing which hyperparameter combinations resulted in the lowest error.</p>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=a5996097bf99e2df">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=6718106031d57eaa">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="5.-Remote-Storage-and-Collaboration">5. Remote Storage and Collaboration<a class="anchor-link" href="#5.-Remote-Storage-and-Collaboration">¶</a></h3><p>Modern ML teams are often distributed, and data frequently exceeds gigabytes or terabytes. Storing such artefacts inside Git repositories is neither feasible nor efficient. DVC solves this through remote storage backends, which may include <strong>Amazon S3</strong>, <strong>Google Cloud Storage</strong>, <strong>Azure Blob Storage</strong>, SSH-accessible servers, or network storage systems. Team members can pull specific dataset versions, reproduce experiments locally, and share model artefacts without duplicating storage, supporting collaboration without sacrificing traceability, ensuring everyone works with the same data versions.</p>
-<p><img alt="DVC Remote Storage" src="imagens/dvc-storage.png" width="600"/></p>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=b2e3a16ccf1350c2">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="6.-DVC-within-the-MLOps-Architecture-of-This-Course">6. DVC within the MLOps Architecture of This Course<a class="anchor-link" href="#6.-DVC-within-the-MLOps-Architecture-of-This-Course">¶</a></h3><p>In our course stack, DVC serves as the structural base layer:</p>
+<h3 id="6.-MLflow-in-the-Weather-Forecast-Capstone">6. MLflow in the Weather Forecast Capstone<a class="anchor-link" href="#6.-MLflow-in-the-Weather-Forecast-Capstone">¶</a></h3><p><img alt="MLflow Weather Forecast" src="../imagens/mlflow-capstone-project.png" width="600"/></p>
+<p>For our weather capstone project, MLflow serves as the final <strong>Quality Gate</strong> before a model reaches the user:</p>
 <ul>
-<li><strong>DVC</strong> guarantees data and pipeline reproducibility.</li>
-<li><strong>Hydra</strong> ensures configuration reproducibility.</li>
-<li><strong>MLflow</strong> captures experiment metrics and metadata.</li>
-<li><strong>Airflow</strong> orchestrates execution in time.</li>
-<li><strong>FastAPI/Docker</strong> operationalise the model.</li>
+<li><strong>Baseline Tracking:</strong> We will log our first Prophet model runs to establish a performance benchmark.</li>
+<li><strong>Evolutionary Benchmarking:</strong> As we move to LSTM/GRU architectures managed by <strong>Hydra</strong>, we will log the configuration of each experiment to prove that the deep learning approach actually outperforms the baseline.</li>
+<li><strong>Lifecycle Management:</strong> Once we find a high-performing model, we will use the <strong>Model Registry</strong> to tag it as <code>Production</code>. Our <strong>FastAPI</strong> serving layer will then automatically pull whichever model carries that tag, allowing us to update the live forecast without changing our deployment code.</li>
 </ul>
-<p>Without reproducible data and pipelines provided by DVC, tracking and orchestration lose their foundational meaning.</p>
+<p>By integrating MLflow, we ensure that every weather forecast is backed by a fully traceable and reproducible experiment.</p>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=aeb55720e116eec5">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=4636903b06ae9455">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="7.-Recommended-Further-Reading">7. Recommended Further Reading<a class="anchor-link" href="#7.-Recommended-Further-Reading">¶</a></h3><ul>
-<li><strong>DVC Official Documentation</strong>: <a href="https://dvc.org/doc">https://dvc.org/doc</a></li>
-<li><strong>Made With ML – MLOps Guide</strong>: <a href="https://madewithml.com">https://madewithml.com</a></li>
-<li><strong>CRISP-ML(Q) Whitepaper</strong>: <a href="https://arxiv.org/abs/2003.05155">https://arxiv.org/abs/2003.05155</a></li>
+<li><strong>MLflow Official Documentation:</strong> <a href="https://mlflow.org/docs/latest/index.html">https://mlflow.org/docs/latest/index.html</a></li>
+<li><strong>MLflow tutorial: MLOps made eas:</strong> <a href="https://anderfernandez.com/en/blog/complete-mlflow-tutorial/">https://anderfernandez.com/en/blog/complete-mlflow-tutorial/</a></li>
+<li><strong>MLflow Beginner's Guide: How to Get Started with MLflow:</strong> <a href="https://rogue-scholar.org/records/957q3-ee152">https://rogue-scholar.org/records/957q3-ee152</a></li>
+<li>Huyen, C. (2022). Designing Machine Learning Systems: An Iterative Process for Production-Ready Applications. O’Reilly Media. (<em>published in Moodle</em>)</li>
 </ul>
 </div>
 </div>

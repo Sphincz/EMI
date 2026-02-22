@@ -3,7 +3,7 @@
 <html lang="en">
 <head><meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>M1-ClassAS1-Hydra</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>M1-ClassAS1-DVC</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <style type="text/css">
     pre { line-height: 125%; }
 td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
@@ -7796,110 +7796,123 @@ a.anchor-link {
 <!-- End of mermaid configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 <main>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=70108ee3c27522a3">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=7a8bb965c667cf08">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="Configuration-Management-and-Reproducibility-with-Hydra">Configuration Management and Reproducibility with Hydra<a class="anchor-link" href="#Configuration-Management-and-Reproducibility-with-Hydra">¶</a></h2><ul>
+<h2 id="Data-Versioning-and-Reproducibility-with-DVC">Data Versioning and Reproducibility with DVC<a class="anchor-link" href="#Data-Versioning-and-Reproducibility-with-DVC">¶</a></h2><ul>
 <li><strong>Course:</strong> Engineering of Intelligent Models</li>
-<li><strong>Module:</strong> M1 – MLOps Foundations</li>
+<li><strong>Module:</strong> M1. MLOps Foundations</li>
 <li><strong>Format:</strong> Asynchronous Jupyter Notebook (self-study)</li>
-<li><strong>Focus Tool:</strong> Hydra</li>
+<li><strong>Focus Tool:</strong> DVC (Data Version Control)</li>
 </ul>
 <h3 id="1.-Learning-Outcomes">1. Learning Outcomes<a class="anchor-link" href="#1.-Learning-Outcomes">¶</a></h3><p>After studying this notebook, you should be able to:</p>
 <ol>
-<li>Explain the "Configuration Debt" in machine learning and why hardcoded parameters impede scalability.</li>
-<li>Define the core architectural principles of <strong>Hydra</strong>, including its hierarchical configuration and composition features.</li>
-<li>Understand how to use <strong>Config Groups</strong> to manage multiple model architectures and environments.</li>
-<li>Describe the synergy between Hydra and other MLOps tools like MLflow and DVC.</li>
-<li>Conceptually apply dynamic configuration to the Weather Forecast capstone project to manage hyperparameters and data paths.</li>
+<li>Explain why traditional version control systems are insufficient for managing machine learning systems.</li>
+<li>Describe the architectural principles behind Data Version Control (DVC).</li>
+<li>Understand how DVC enables reproducibility, traceability, and collaboration in ML workflows.</li>
+<li>Analyse the role of DVC within a broader MLOps architecture.</li>
+<li>Conceptually integrate DVC into the Weather Forecast capstone system.</li>
 </ol>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=d9a3d91b6181ee76">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=5f2ad429a70f84ad">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="2.-The-Problem:-Hardcoding-and-Configuration-Debt">2. The Problem: Hardcoding and Configuration Debt<a class="anchor-link" href="#2.-The-Problem:-Hardcoding-and-Configuration-Debt">¶</a></h3><p>In the early stages of a machine learning project, it is common to define parameters, such as learning rates, data paths, or model types, directly inside the Python scripts. However, as the project grows into a production-grade system like our <strong>Weather Forecast</strong> capstone, this approach creates significant "Configuration Debt". If you want to experiment with a different model (e.g., switching from Prophet to an LSTM), you find yourself manually editing source code, which increases the risk of errors and makes it impossible to track exactly which settings were used for a specific experiment.</p>
-<p><img alt="Configuration Debt" src="imagens/hydra-configuration-debt.jpg" width="600"/></p>
-<p>Traditional configuration files, such as a single static YAML or JSON, often become bloated and difficult to manage as complexity increases. They lack the flexibility to handle "nested" settings, such as different preprocessing parameters for different regions or different architectures for different prediction horizons. This lack of flexibility breaks the <strong>Reproducibility</strong> pillar of MLOps; if you cannot easily swap configurations without touching the code, you cannot effectively scale your experimentation.</p>
+<h3 id="2.-The-Reproducibility-Problem-in-Machine-Learning">2. The Reproducibility Problem in Machine Learning<a class="anchor-link" href="#2.-The-Reproducibility-Problem-in-Machine-Learning">¶</a></h3><p><img alt="ML Reproducibility Problem" src="../imagens/ml-reproducibility.webp" width="600"/></p>
+<p>Reproducibility in machine learning means being able to run the same experiment again and get the same results. For ML this means using the same code, data and settings and making sure the model performs the same way each time. Reproducibility helps in debugging, comparing models, sharing work with others and deploying reliable systems in the real world. When experiments are reproducible teams can trust each other’s work, improve on existing models, compare results fairly and avoid unexpected behavior during deployment.</p>
+<p>In traditional software engineering, reproducibility is relatively straightforward. Source code is versioned, dependencies are declared, and builds can typically be reconstructed deterministically from a repository state. Machine learning systems, however, introduce an additional and far more volatile dependency: <strong>data</strong>.</p>
+<p>A trained model is not merely a function of its source code; it is a function of the dataset used during training, the preprocessing transformations, feature engineering logic, and hyperparameters. Without a tool like DVC, researchers often fall into the trap of manual versioning, leading to "filename hell."</p>
+<p><img alt="Reproducibility Problem" src="../imagens/reproducibility-problem.webp" width="600"/></p>
+<p>In practice, datasets evolve continuously as records are appended, corrections are made, sensors drift, or APIs update. Without a structured way to track data versions, answering fundamental questions becomes impossible: Which dataset produced this model? Why did performance improve or degrade? Can we rebuild last month’s model exactly as it was? In a production setting, these are operational, regulatory, and sometimes legal requirements. This is the problem that DVC was designed to solve.</p>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=efd306ba04e81534">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=af104549fbd05fa2">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="3.-What-is-Hydra?">3. What is Hydra?<a class="anchor-link" href="#3.-What-is-Hydra?">¶</a></h3><p><img alt="Hydra Logo" src="imagens/hydra-logo.png" width="400"/></p>
-<p>Hydra is an open-source Python framework developed by Meta (formerly Facebook) designed specifically to simplify the development of complex applications. Its primary goal is to allow developers to dynamically create a hierarchical configuration by composing it from multiple files and even overriding settings from the command line.</p>
-<p><img alt="Hydra Config Groups" src="imagens/hydra-composition.png" width="400"/></p>
-<p>The power of Hydra lies in its <strong>Compositional</strong> nature. Instead of one giant configuration file, you break your settings into logical "Config Groups." For our weather system, you might have one group for <code>model</code> (Prophet, LSTM, GRU) and another for <code>dataset</code> (Historical, Real-time API). Hydra allows you to choose which files to combine at runtime, ensuring that your code remains generic while your experiments remain specific and documented.</p>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=8063447edc9ccd">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="4.-Hydra-Composition-and-Overrides">4. Hydra Composition and Overrides<a class="anchor-link" href="#4.-Hydra-Composition-and-Overrides">¶</a></h3><p>Hydra operates on the principle of <strong>Hierarchical Configuration</strong>. By using a primary <code>config.yaml</code> as an entry point, you can define "Defaults" that tell Hydra which sub-configurations to load. This is particularly useful for our capstone: you can define a default model as Prophet but easily override it to use an LSTM by simply passing <code>model=lstm</code> in the command line without modifying a single line of Python.</p>
-<p>This dynamic overriding capability ensures that every experiment is reproducible. Hydra automatically saves the specific configuration used for a run in an output directory, creating a permanent record of the parameters used. This complements <strong>DVC</strong> (which versions the data) and <strong>MLflow</strong> (which tracks the results), providing the final piece of the reproducibility puzzle: the versioning of the <em>intent</em> behind the experiment.</p>
-<p><img alt="Hydra Overrides" src="imagens/hydra-override.png" width="400"/></p>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=d1399c3bfdf116c4">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="5.-Anatomy-of-a-Hydra-Workflow:-Config-Groups-and-Sweeps">5. Anatomy of a Hydra Workflow: Config Groups and Sweeps<a class="anchor-link" href="#5.-Anatomy-of-a-Hydra-Workflow:-Config-Groups-and-Sweeps">¶</a></h3><p>To manage complex settings, Hydra utilizes three primary mechanisms: <strong>Config Groups</strong>, <strong>Multirun</strong>, and <strong>Output Management</strong>. <strong>Config Groups</strong> allow you to define alternative sets of settings for a specific component; for example, your <code>model</code> group could contain separate files for <code>prophet.yaml</code> and <code>lstm.yaml</code>.</p>
-<p><img alt="Hydra Config Groups" src="imagens/hydra-config-groups.png" width="600"/></p>
-<p>The <strong>Multirun</strong> feature is a cornerstone for hyperparameter optimization. Instead of running your script five times with five different learning rates, you can instruct Hydra to perform a "Sweep" (e.g., <code>learning_rate=0.01,0.05,0.1 -m</code>). Hydra will automatically launch multiple instances of your pipeline, managing the configurations for each. Finally, Hydra's <strong>Output Management</strong> ensures that every run is isolated in its own folder, containing the logs and the final composed configuration file, which is essential for auditability in professional MLOps environments.</p>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=61f4819bb5b1a992">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="6.-Hydra-in-the-Weather-Forecast-Capstone">6. Hydra in the Weather Forecast Capstone<a class="anchor-link" href="#6.-Hydra-in-the-Weather-Forecast-Capstone">¶</a></h3><p>As we progress through the course, Hydra will become the interface through which we interact with our weather models. It will manage the transition from a simple baseline to a deep learning pipeline:</p>
+<h3 id="3.-What-is-DVC?">3. What is DVC?<a class="anchor-link" href="#3.-What-is-DVC?">¶</a></h3><p><img alt="DVC Logo" src="../imagens/dvc-logo.png" width="200"/></p>
+<p>DVC (Data Version Control) is an open-source system that extends Git-based workflows to large datasets and machine learning pipelines.</p>
 <ul>
-<li><strong>Experiment Management:</strong> We will use Hydra to switch between different window sizes for our time-series data without rewriting our preprocessing logic.</li>
-<li><strong>Environment Configuration:</strong> Hydra will handle the difference between "Local" development (using CSV files) and "Production" environments (connecting to live APIs).</li>
-<li><strong>Hyperparameter Tuning:</strong> During the Model Engineering phase, Hydra will manage the sweeps across LSTM hidden layers and dropout rates, logging the best combinations directly to <strong>MLflow</strong>.</li>
+<li><strong>Official website</strong>: <a href="https://dvc.org">https://dvc.org</a></li>
+<li><strong>Documentation</strong>: <a href="https://dvc.org/doc">https://dvc.org/doc</a></li>
 </ul>
-<p>By integrating Hydra, we ensure that our code is truly "Model Agnostic," allowing us to focus on the engineering logic while the framework handles the complexity of the parameters.</p>
+<p>Unlike Git, which is optimised for tracking small text-based source code files, DVC is designed to manage large datasets, model artefacts, intermediate pipeline outputs, and reproducible ML workflows. DVC does not replace Git; instead, it integrates tightly with it. Git continues to manage source code and lightweight metadata, while DVC manages large files and pipeline state externally, linking everything to Git commits. This separation preserves the efficiency of Git while enabling data-centric version control.</p>
+<p><img alt="DVC vs Git" src="../imagens/dvc-vs-git.png" width="600"/></p>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=d8593e858df0f076">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=e00470364e4db61b">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="4.-The-Core-Design-Principle:-The-%22Metafile%22">4. The Core Design Principle: The "Metafile"<a class="anchor-link" href="#4.-The-Core-Design-Principle:-The-%22Metafile%22">¶</a></h3><p>The central idea behind DVC is to treat data and models as first-class citizens in version control. When you add data to DVC, it is not committed directly to Git. Instead:</p>
+<ol>
+<li><strong>DVC computes a cryptographic hash</strong> of the file to uniquely identify its contents.</li>
+<li><strong>The actual file is stored</strong> in a dedicated storage area, known as the local cache or remote storage (like AWS S3 or Google Cloud Storage).</li>
+<li><strong>A lightweight "Metafile" (<code>.dvc</code>) is created</strong>. This file contains metadata and a pointer to where the actual data is stored.</li>
+</ol>
+<p>Git tracks this <code>.dvc</code> metafile. Because the hash is content-based, any modification to the data produces a new version identifier in the metafile, creating a deterministic link between a Git commit, a specific dataset version, and a specific model artefact.</p>
+<p><img alt="DVC Versioning" src="../imagens/dvc-versioning.webp" width="600"/></p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=a5996097bf99e2df">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="5.-Remote-Storage-and-Collaboration">5. Remote Storage and Collaboration<a class="anchor-link" href="#5.-Remote-Storage-and-Collaboration">¶</a></h3><p>Modern ML teams are often distributed, and data frequently exceeds gigabytes or terabytes. Storing such artefacts inside Git repositories is neither feasible nor efficient. DVC solves this through remote storage backends, which may include <strong>Amazon S3</strong>, <strong>Google Cloud Storage</strong>, <strong>Azure Blob Storage</strong>, SSH-accessible servers, or network storage systems. Team members can pull specific dataset versions, reproduce experiments locally, and share model artefacts without duplicating storage, supporting collaboration without sacrificing traceability, ensuring everyone works with the same data versions.</p>
+<p><img alt="DVC Remote Storage" src="../imagens/dvc-storage.png" width="600"/></p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=b2e3a16ccf1350c2">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="6.-DVC-within-the-MLOps-Architecture-of-This-Course">6. DVC within the MLOps Architecture of This Course<a class="anchor-link" href="#6.-DVC-within-the-MLOps-Architecture-of-This-Course">¶</a></h3><p>In our course stack, DVC serves as the structural base layer:</p>
+<ul>
+<li><strong>DVC</strong> guarantees data and pipeline reproducibility.</li>
+<li><strong>Hydra</strong> ensures configuration reproducibility.</li>
+<li><strong>MLflow</strong> captures experiment metrics and metadata.</li>
+<li><strong>Airflow</strong> orchestrates execution in time.</li>
+<li><strong>FastAPI/Docker</strong> operationalise the model.</li>
+</ul>
+<p>Without reproducible data and pipelines provided by DVC, tracking and orchestration lose their foundational meaning.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=aeb55720e116eec5">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="7.-Recommended-Further-Reading">7. Recommended Further Reading<a class="anchor-link" href="#7.-Recommended-Further-Reading">¶</a></h3><ul>
-<li><strong>Hydra Official Documentation:</strong> <a href="https://hydra.cc/docs/intro/">https://hydra.cc/docs/intro/</a></li>
-<li><strong>OmegaConf (The engine behind Hydra):</strong> <a href="https://omegaconf.readthedocs.io/">https://omegaconf.readthedocs.io/</a></li>
-<li><strong>Tutorial: Learning Hydra for configuring ML experiments</strong> <a href="https://www.sscardapane.it/tutorials/hydra-tutorial/">https://www.sscardapane.it/tutorials/hydra-tutorial/</a></li>
+<li><strong>DVC Official Documentation</strong>: <a href="https://dvc.org/doc">https://dvc.org/doc</a></li>
+<li><strong>Made With ML – MLOps Guide</strong>: <a href="https://madewithml.com">https://madewithml.com</a></li>
+<li><strong>CRISP-ML(Q) Whitepaper</strong>: <a href="https://arxiv.org/abs/2003.05155">https://arxiv.org/abs/2003.05155</a></li>
 </ul>
 </div>
 </div>
